@@ -18,7 +18,7 @@ Intermit è un'app Android per il **digiuno intermittente**. Permette di traccia
 
 1. **Clona il repository**:
     ```bash
-    git clone https://github.com/tuo-username/intermit.git
+    git clone https://github.com/Samoggino/Intermit.git
     cd intermit
     ```
 
