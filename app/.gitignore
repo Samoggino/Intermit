@@ -1,0 +1,42 @@
+# Built application files
+*.apk
+*.ap_ 
+*.aab
+
+# Gradle files
+.gradle/
+build/
+.idea/
+*.iml
+
+# Local configuration file (Gradle sync)
+local.properties
+
+# Keystore files
+*.jks
+*.keystore
+
+# Android Studio specific files
+.vscode/
+*.iws
+*.ipr
+
+# Gradle Wrapper
+gradle-wrapper.jar
+gradle-wrapper.properties
+
+# Miscellaneous
+.DS_Store
+Thumbs.db
+
+# User-specific files
+*.log
+
+# Android specific
+captures/
+output/
+
+# Kotlin-specific
+*.class
+*.kt.gyb
+*.kapt/
