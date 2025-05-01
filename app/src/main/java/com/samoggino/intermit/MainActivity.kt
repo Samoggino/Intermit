@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.samoggino.intermit.data.database.AppDatabase
 import com.samoggino.intermit.data.repository.FastingRepository
 import com.samoggino.intermit.ui.screens.MainScreen
+import com.samoggino.intermit.ui.theme.IntermitTheme
 import com.samoggino.intermit.viewmodel.MainViewModel
 import com.samoggino.intermit.viewmodel.MainViewModelFactory
 
@@ -20,7 +21,9 @@ class MainActivity : ComponentActivity() {
         val viewModel = ViewModelProvider(this, factory)[MainViewModel::class.java]
 
         setContent {
-            MainScreen(viewModel)
+            IntermitTheme(darkTheme = true) {
+                MainScreen(viewModel)
+            }
         }
     }
 }
