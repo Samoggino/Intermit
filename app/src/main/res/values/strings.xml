@@ -1,3 +1,30 @@
 <resources>
     <string name="app_name">Intermit</string>
+
+    <string name="permission_grant">Grant</string>
+    <string name="permission_message">Please grant the notification permission.</string>
+    <string name="permission_rationale">Notifications are used for order tracking.</string>
+    <string name="live_update_summary_text">Clicking the checkout button will simulate the tracking of an order with notifications styled with ProgressStyle.</string>
+    <string name="checkout">Checkout</string>
+    <string name="checking_out">Order placed</string>
+
+    <string name="FED_state">You are fed</string>
+    <string name="FED_description">Your body is using glucose for energy.</string>
+
+    <string name="EARLY_FASTING_state">Early Fasting</string>
+    <string name="EARLY_FASTING_description">Your body is starting to use glycogen stores.</string>
+
+    <string name="FAT_BURNING_state">Fat Burning</string>
+    <string name="FAT_BURNING_description">Your body is now burning fat for energy.</string>
+
+    <string name="KETOSIS_state">Ketosis</string>
+    <string name="KETOSIS_description">Your body is producing ketones for energy.</string>
+
+    <string name="DEEP_KETOSIS_state">Deep Ketosis</string>
+    <string name="DEEP_KETOSIS_description">Maximizing fat burning.</string>
+
+    <string name="AUTOPHAGY_state">Autophagy</string>
+    <string name="AUTOPHAGY_description">Your cells are being cleaned up.</string>
+
+
 </resources>

@@ -33,6 +33,5 @@ fun MainScreen(viewModel: MainViewModel) {
         }
     ) { innerPadding ->
         MyNavigator(navController, innerPadding, viewModel)
-
     }
 }

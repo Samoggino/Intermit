@@ -9,12 +9,12 @@ plugins {
 
 android {
     namespace = "com.samoggino.intermit"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.samoggino.intermit"
-        minSdk = 33
-        targetSdk = 35
+        minSdk = 36
+        targetSdk = 36
         versionCode = 1
         versionName = "1.0"
 
@@ -39,6 +39,7 @@ android {
     }
     buildFeatures {
         compose = true
+        viewBinding = true
     }
 }
 
@@ -51,6 +52,8 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    implementation(libs.androidx.animation)
+
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.lifecycle.livedata.ktx)
@@ -69,5 +72,7 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+    implementation(libs.accompanist.permissions)
+
 }
 

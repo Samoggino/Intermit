@@ -1,5 +1,6 @@
 [versions]
-agp = "8.9.2"
+agp = "8.10.0"
+animation = "1.8.0"
 kotlin = "2.0.21"
 coreKtx = "1.16.0"
 junit = "4.13.2"
@@ -15,9 +16,12 @@ lifecycleLivedataKtx = "2.8.7"
 runtimeLivedata = "1.8.0"
 ksp = "2.0.21-1.0.27"
 firebasePerfKtx = "21.0.5"
+accompanist = "0.32.0"
+
 
 
 [libraries]
+androidx-animation = { module = "androidx.compose.animation:animation", version.ref = "animation" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -39,6 +43,7 @@ androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref =
 androidx-lifecycle-livedata-ktx = { group = "androidx.lifecycle", name = "lifecycle-livedata-ktx", version.ref = "lifecycleLivedataKtx" }
 androidx-runtime-livedata = { group = "androidx.compose.runtime", name = "runtime-livedata", version.ref = "runtimeLivedata" }
 firebase-perf-ktx = { group = "com.google.firebase", name = "firebase-perf-ktx", version.ref = "firebasePerfKtx" }
+accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanist" }
 
 [plugins]
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }

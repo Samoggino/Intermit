@@ -9,6 +9,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.samoggino.intermit.ui.screens.HistoryScreen
 import com.samoggino.intermit.ui.screens.HomeScreen
+import com.samoggino.intermit.ui.screens.LiveUpdateSample
 import com.samoggino.intermit.ui.screens.Screen
 import com.samoggino.intermit.ui.screens.SettingsScreen
 import com.samoggino.intermit.viewmodel.MainViewModel
@@ -22,16 +23,13 @@ fun MyNavigator(
     NavHost(
         navController = navController,
         startDestination = Screen.Home.route,
+//        startDestination = Screen.TestNotification.route,
         modifier = Modifier.padding(innerPadding)
     ) {
-        composable(Screen.Home.route) {
-            HomeScreen(viewModel)
-        }
-        composable(Screen.History.route) {
-            HistoryScreen(viewModel)
-        }
-        composable(Screen.Settings.route) {
-            SettingsScreen()
-        }
+        composable(Screen.Home.route) { HomeScreen(viewModel) }
+        composable(Screen.History.route) { HistoryScreen(viewModel) }
+        composable(Screen.Settings.route) { SettingsScreen() }
+        composable(Screen.TestNotification.route) { LiveUpdateSample() }
+
     }
 }
