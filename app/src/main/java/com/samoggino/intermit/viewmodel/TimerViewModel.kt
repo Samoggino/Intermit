@@ -1,17 +1,19 @@
 package com.samoggino.intermit.viewmodel
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.samoggino.intermit.data.model.Plan
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-class TimerViewModel : ViewModel() {
-    var selectedPlan by mutableStateOf(Plan.TWENTY_FOUR)
+class TimerViewModel(initialPlan: Plan) : ViewModel() {
+    var selectedPlan by mutableStateOf(initialPlan)
         private set
 
     var timeLeft by mutableLongStateOf(selectedPlan.durationMillis)
@@ -29,10 +31,13 @@ class TimerViewModel : ViewModel() {
                 if (isRunning && timeLeft > 0) {
                     delay(1000)
                     timeLeft = (timeLeft - 1000).coerceAtLeast(0)
+                    Log.d("TimerViewModel", "Tick: timeLeft = $timeLeft")
                 } else if (timeLeft <= 0 && isRunning) {
+                    Log.d("TimerViewModel", "Timer finito, stoppo")
                     isRunning = false
+                } else {
+                    delay(100)
                 }
-                delay(200)
             }
         }
     }
@@ -56,4 +61,20 @@ class TimerViewModel : ViewModel() {
         timeLeft = plan.durationMillis
         isRunning = false
     }
+
+    fun reset() {
+        timeLeft = selectedPlan.durationMillis
+        isRunning = false
+    }
 }
+
+class TimerViewModelFactory(private val plan: Plan) : ViewModelProvider.Factory {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(TimerViewModel::class.java)) {
+            @Suppress("UNCHECKED_CAST")
+            return TimerViewModel(plan) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel class")
+    }
+}
+

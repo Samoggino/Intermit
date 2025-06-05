@@ -10,7 +10,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import java.util.Locale
+import com.samoggino.intermit.utils.toHMSString
 
 @Composable
 fun TimerDisplay(
@@ -29,16 +29,9 @@ fun TimerDisplay(
 
     Spacer(modifier = Modifier.height(16.dp))
 
-    val minutesLeft = (timeLeft / 1000 / 60) % 60
-    val hoursLeft = (timeLeft / 1000 / 60 / 60)
-
     Text(
-        text = String.format(
-            Locale.getDefault(),
-            "Tempo restante: %02d:%02d",
-            hoursLeft,
-            minutesLeft
-        ),
+        text = timeLeft.toHMSString(),
         style = MaterialTheme.typography.bodyLarge
     )
 }
+

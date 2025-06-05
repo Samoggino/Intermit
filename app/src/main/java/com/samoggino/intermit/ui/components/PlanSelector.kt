@@ -29,7 +29,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import com.samoggino.intermit.data.model.Plan
 
-
 @Composable
 fun PlanSelector(
     selectedPlan: Plan,

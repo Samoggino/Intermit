@@ -11,6 +11,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.samoggino.intermit.data.database.AppDatabase
+import com.samoggino.intermit.data.model.Plan
 import com.samoggino.intermit.data.repository.FastingRepository
 import com.samoggino.intermit.ui.screens.HistoryScreen
 import com.samoggino.intermit.ui.screens.HomeScreen
@@ -20,6 +21,7 @@ import com.samoggino.intermit.ui.screens.SettingsScreen
 import com.samoggino.intermit.viewmodel.SessionRepositoryViewModel
 import com.samoggino.intermit.viewmodel.SessionRepositoryViewModelFactory
 import com.samoggino.intermit.viewmodel.TimerViewModel
+import com.samoggino.intermit.viewmodel.TimerViewModelFactory
 
 @Composable
 fun MyNavigator(
@@ -32,16 +34,26 @@ fun MyNavigator(
         modifier = Modifier.padding(innerPadding)
     ) {
         composable(Screen.Home.route) { backStackEntry ->
+
             val parentEntry = remember(backStackEntry) {
                 navController.getBackStackEntry(Screen.Home.route)
             }
 
-            val timerViewModel = viewModel<TimerViewModel>(parentEntry)
+            val timerViewModel: TimerViewModel = viewModel(
+                viewModelStoreOwner = parentEntry,
+                factory = TimerViewModelFactory(Plan.TWENTY_FOUR)
+            )
 
-            HomeScreen(timerViewModel)
+            val sessionRepositoryViewModel = viewModel(
+                modelClass = SessionRepositoryViewModel::class.java,
+                factory = SessionRepositoryViewModelFactory(
+                    FastingRepository(AppDatabase.getDatabase(LocalContext.current).fastingDao())
+                ),
+                viewModelStoreOwner = parentEntry
+            )
+
+            HomeScreen(timerViewModel, sessionRepositoryViewModel)
         }
-
-
 
         composable(Screen.History.route) { backStackEntry ->
             val context = LocalContext.current

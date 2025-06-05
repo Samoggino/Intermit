@@ -13,4 +13,6 @@ class FastingRepository(private val dao: FastingDao) {
     suspend fun update(session: FastingSession) = dao.updateSession(session)
 
     suspend fun delete(session: FastingSession) = dao.deleteSession(session)
+
+    suspend fun deleteAll() = dao.deleteAllSessions()
 }

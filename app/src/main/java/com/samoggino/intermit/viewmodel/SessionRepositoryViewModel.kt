@@ -9,6 +9,17 @@ import com.samoggino.intermit.data.model.FastingSession
 import com.samoggino.intermit.data.repository.FastingRepository
 import kotlinx.coroutines.launch
 
+class SessionRepositoryViewModelFactory(private val repository: FastingRepository) :
+    ViewModelProvider.Factory {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(SessionRepositoryViewModel::class.java)) {
+            @Suppress("UNCHECKED_CAST")
+            return SessionRepositoryViewModel(repository) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel class")
+    }
+}
+
 class SessionRepositoryViewModel(private val repository: FastingRepository) : ViewModel() {
 
     val allSessions: LiveData<List<FastingSession>> = repository.allSessions.asLiveData()
@@ -25,15 +36,8 @@ class SessionRepositoryViewModel(private val repository: FastingRepository) : Vi
     fun deleteSession(session: FastingSession) = viewModelScope.launch {
         repository.delete(session)
     }
-}
 
-class SessionRepositoryViewModelFactory(private val repository: FastingRepository) : ViewModelProvider.Factory {
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(SessionRepositoryViewModel::class.java)) {
-            @Suppress("UNCHECKED_CAST")
-            return SessionRepositoryViewModel(repository) as T
-        }
-        throw IllegalArgumentException("Unknown ViewModel class")
+    fun deleteAllSessions() = viewModelScope.launch {
+        repository.deleteAll()
     }
 }
-

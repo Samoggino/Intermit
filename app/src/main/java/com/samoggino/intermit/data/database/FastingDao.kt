@@ -20,6 +20,9 @@ interface FastingDao {
     @Delete
     suspend fun deleteSession(session: FastingSession)
 
+    @Query("DELETE FROM fasting_sessions")
+    suspend fun deleteAllSessions()
+
     @Query("SELECT * FROM fasting_sessions ORDER BY startTime DESC")
     fun getAllSessions(): Flow<List<FastingSession>>
 }
