@@ -2,7 +2,6 @@ package com.samoggino.intermit.data.model
 
 import android.app.Notification
 import android.content.Context
-import androidx.core.graphics.drawable.IconCompat
 import com.samoggino.intermit.R
 import com.samoggino.intermit.utils.SnackbarNotificationManager
 

@@ -8,7 +8,7 @@ class FastingRepository(private val dao: FastingDao) {
 
     val allSessions: Flow<List<FastingSession>> = dao.getAllSessions()
 
-    suspend fun insert(session: FastingSession) = dao.insertSession(session)
+    suspend fun insert(session: FastingSession) : Long = dao.insertSession(session)
 
     suspend fun update(session: FastingSession) = dao.updateSession(session)
 

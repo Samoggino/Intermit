@@ -7,17 +7,16 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
-import com.samoggino.intermit.viewmodel.MainViewModel
+import com.samoggino.intermit.viewmodel.SessionRepositoryViewModel
 import java.sql.Date
 
 @Composable
-fun HistoryScreen(viewModel: MainViewModel) {
+fun HistoryScreen(viewModel: SessionRepositoryViewModel) {
     val sessions by viewModel.allSessions.observeAsState(emptyList())
 
     LazyColumn {
         items(sessions) { session ->
             Text("Digiuno iniziato: ${Date(session.startTime)}")
-            Text("Protocollo: ${session.protocol}")
             HorizontalDivider()
         }
     }

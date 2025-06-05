@@ -85,7 +85,7 @@ fun LiveUpdateSample() {
 }
 
 fun onStartFasting() {
-    SnackbarNotificationManager.startFastingNotificationForTesting()
+    SnackbarNotificationManager.start()
 }
 
 

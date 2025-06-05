@@ -9,12 +9,13 @@ import com.samoggino.intermit.data.model.FastingSession
 import com.samoggino.intermit.data.repository.FastingRepository
 import kotlinx.coroutines.launch
 
-class MainViewModel(private val repository: FastingRepository) : ViewModel() {
+class SessionRepositoryViewModel(private val repository: FastingRepository) : ViewModel() {
 
     val allSessions: LiveData<List<FastingSession>> = repository.allSessions.asLiveData()
 
-    fun insertSession(session: FastingSession) = viewModelScope.launch {
-        repository.insert(session)
+    fun insertSession(session: FastingSession, onResult: (Long) -> Unit) = viewModelScope.launch {
+        val id = repository.insert(session)
+        onResult(id)
     }
 
     fun updateSession(session: FastingSession) = viewModelScope.launch {
@@ -26,11 +27,11 @@ class MainViewModel(private val repository: FastingRepository) : ViewModel() {
     }
 }
 
-class MainViewModelFactory(private val repository: FastingRepository) : ViewModelProvider.Factory {
+class SessionRepositoryViewModelFactory(private val repository: FastingRepository) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(MainViewModel::class.java)) {
+        if (modelClass.isAssignableFrom(SessionRepositoryViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return MainViewModel(repository) as T
+            return SessionRepositoryViewModel(repository) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

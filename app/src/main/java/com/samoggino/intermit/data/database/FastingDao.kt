@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.Flow
 interface FastingDao {
 
     @Insert
-    suspend fun insertSession(session: FastingSession)
+    suspend fun insertSession(session: FastingSession) : Long
 
     @Update
     suspend fun updateSession(session: FastingSession)
