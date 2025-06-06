@@ -1,77 +1,86 @@
 package com.samoggino.intermit.viewmodel
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.samoggino.intermit.data.model.Plan
+import com.samoggino.intermit.data.model.TimerState
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class TimerViewModel(initialPlan: Plan) : ViewModel() {
+
     var selectedPlan by mutableStateOf(initialPlan)
         private set
 
     var timeLeft by mutableLongStateOf(selectedPlan.durationMillis)
         private set
 
-    var isRunning by mutableStateOf(false)
+    var timerState by mutableStateOf(TimerState.STOPPED)
         private set
 
-    val progress: Float
-        get() = timeLeft.toFloat() / selectedPlan.durationMillis.toFloat()
+    private val scope = CoroutineScope(Dispatchers.Default)
 
     init {
-        viewModelScope.launch {
+        startTimerLoop()
+    }
+
+    private fun startTimerLoop() {
+        scope.launch {
             while (true) {
-                if (isRunning && timeLeft > 0) {
-                    delay(1000)
-                    timeLeft = (timeLeft - 1000).coerceAtLeast(0)
-                    Log.d("TimerViewModel", "Tick: timeLeft = $timeLeft")
-                } else if (timeLeft <= 0 && isRunning) {
-                    Log.d("TimerViewModel", "Timer finito, stoppo")
-                    isRunning = false
-                } else {
-                    delay(100)
+                when (timerState) {
+                    TimerState.RUNNING -> {
+                        if (timeLeft > 0) {
+                            delay(1000)
+                            timeLeft = (timeLeft - 1000).coerceAtLeast(0)
+                        } else {
+                            // Timer finito: fermo il timer
+                            timerState = TimerState.STOPPED
+                        }
+                    }
+
+                    else -> {
+                        delay(100)
+                    }
                 }
             }
         }
     }
 
+    // Start dal valore corrente di timeLeft (senza reset)
     fun start() {
-        timeLeft = selectedPlan.durationMillis
-        isRunning = true
+        if (timeLeft <= 0) {
+            timeLeft = selectedPlan.durationMillis
+        }
+        timerState = TimerState.RUNNING
     }
 
     fun pause() {
-        isRunning = false
+        timerState = TimerState.PAUSED
     }
 
     fun stop() {
-        isRunning = false
+        timerState = TimerState.STOPPED
         timeLeft = selectedPlan.durationMillis
     }
 
     fun selectPlan(plan: Plan) {
         selectedPlan = plan
         timeLeft = plan.durationMillis
-        isRunning = false
+        timerState = TimerState.STOPPED
     }
 
-    fun reset() {
-        timeLeft = selectedPlan.durationMillis
-        isRunning = false
+    fun restoreFromSession(plan: Plan, timeLeft: Long, isRunning: Boolean) {
+        selectedPlan = plan
+        this.timeLeft = timeLeft
+        timerState = TimerState.RUNNING
+        if (isRunning) {
+            start()
+        }
     }
 
-    fun updateTimeLeft(millis: Long) {
-        timeLeft = millis
-        isRunning = false
-    }
-
-    fun startWithoutReset() {
-        isRunning = true
-    }
 }

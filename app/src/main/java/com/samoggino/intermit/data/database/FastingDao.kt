@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.Flow
 interface FastingDao {
 
     @Insert
-    suspend fun insertSession(session: FastingSession) : Long
+    suspend fun insertSession(session: FastingSession): Long
 
     @Update
     suspend fun updateSession(session: FastingSession)
@@ -25,4 +25,11 @@ interface FastingDao {
 
     @Query("SELECT * FROM fasting_sessions ORDER BY startTime DESC")
     fun getAllSessions(): Flow<List<FastingSession>>
+
+    @Query("SELECT * FROM fasting_sessions WHERE status != 'COMPLETED' AND status != 'STOPPED' ORDER BY startTime DESC LIMIT 1")
+    suspend fun getCurrentNonTerminatedSession(): FastingSession?
+
+    @Query("SELECT * FROM fasting_sessions WHERE id = :id")
+    suspend fun getSessionById(id: Long): FastingSession?
+
 }

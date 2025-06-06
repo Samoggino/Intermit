@@ -15,4 +15,13 @@ class FastingRepository(private val dao: FastingDao) {
     suspend fun delete(session: FastingSession) = dao.deleteSession(session)
 
     suspend fun deleteAll() = dao.deleteAllSessions()
+
+    suspend fun getCurrentNonTerminatedSession(): FastingSession? {
+        return dao.getCurrentNonTerminatedSession()
+    }
+
+    suspend fun getSessionById(id: Long): FastingSession? {
+        return dao.getSessionById(id)
+    }
+
 }

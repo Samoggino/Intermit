@@ -8,6 +8,7 @@ sealed interface HomeUiState {
         val selectedPlan: Plan,
         val timeLeft: Long,
         val isRunning: Boolean,
+        val isPaused: Boolean,
         val progress: Float
     ) : HomeUiState
 

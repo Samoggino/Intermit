@@ -4,12 +4,14 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.asFlow
 import androidx.lifecycle.viewModelScope
 import com.samoggino.intermit.data.factory.SessionFactory
 import com.samoggino.intermit.data.model.Plan
+import com.samoggino.intermit.data.model.SessionStatus
+import com.samoggino.intermit.data.model.TimerState
+import com.samoggino.intermit.data.model.getPlan
+import com.samoggino.intermit.data.model.getTimeLeftMillis
 import com.samoggino.intermit.ui.screens.home.HomeUiState
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 class HomeViewModel(
@@ -25,7 +27,7 @@ class HomeViewModel(
 
     init {
         viewModelScope.launch {
-            restoreLastSessionOnce()  // ora attende che finisca
+            restoreOngoingSession()  // ora attende che finisca
             observeTimerState()       // poi parte l’osservazione
         }
     }
@@ -37,9 +39,9 @@ class HomeViewModel(
                 Triple(
                     timerViewModel.selectedPlan,
                     timerViewModel.timeLeft,
-                    timerViewModel.isRunning
+                    timerViewModel.timerState
                 )
-            }.collect { (plan, timeLeft, isRunning) ->
+            }.collect { (plan, timeLeft, timerState) ->
 
                 val progress = if (plan.durationMillis > 0)
                     timeLeft.toFloat() / plan.durationMillis.toFloat()
@@ -48,34 +50,31 @@ class HomeViewModel(
                 _uiState.value = HomeUiState.Ready(
                     selectedPlan = plan,
                     timeLeft = timeLeft,
-                    isRunning = isRunning,
+                    isRunning = (timerState == TimerState.RUNNING),
+                    isPaused = (timerState == TimerState.PAUSED),
                     progress = progress
                 )
             }
         }
     }
 
-    suspend fun restoreLastSessionOnce() {
-        val sessions = sessionViewModel.allSessions.asFlow().first()
-        val last = sessions.lastOrNull()
-        if (last != null && last.endTime == 0L) {
-            val elapsed = System.currentTimeMillis() - last.startTime
-            val duration = timerViewModel.selectedPlan.durationMillis
-            val timeLeft = (duration - elapsed).coerceAtLeast(0L)
 
-            timerViewModel.updateTimeLeft(timeLeft)
+    fun restoreOngoingSession() {
+        sessionViewModel.restoreLastActiveSession { session ->
+            if (session != null) {
+                val plan = session.getPlan()
+                val timeLeft = session.getTimeLeftMillis()
+                val isRunning = session.status == SessionStatus.ACTIVE
 
-            if (timeLeft > 0) {
-                timerViewModel.startWithoutReset()
+                timerViewModel.restoreFromSession(plan, timeLeft, isRunning)
             }
-
-            currentSessionId = last.id
         }
     }
 
     fun onStartClicked() {
         val start = System.currentTimeMillis()
-        val session = SessionFactory.createSession(startTime = start)
+        val session =
+            SessionFactory.createSession(startTime = start, plan = timerViewModel.selectedPlan)
         timerViewModel.start()
 
         sessionViewModel.insertSession(session) { id ->
@@ -85,29 +84,13 @@ class HomeViewModel(
 
 
     fun onPauseClicked() {
+        sessionViewModel.markSessionAs(currentSessionId, SessionStatus.PAUSED)
         timerViewModel.pause()
-        currentSessionId?.let { id ->
-            val updatedSession = SessionFactory.createSession(
-                startTime = System.currentTimeMillis() - timerViewModel.timeLeft, // o altro metodo
-                endTime = 0L
-            ).copy(id = id)
-            sessionViewModel.updateSession(updatedSession)
-        }
     }
 
-
     fun onStopClicked() {
+        sessionViewModel.markSessionAs(currentSessionId, SessionStatus.STOPPED)
         timerViewModel.stop()
-        val end = System.currentTimeMillis()
-
-        currentSessionId?.let { id ->
-            val updatedSession = SessionFactory.createSession(
-                startTime = end - timerViewModel.selectedPlan.durationMillis,
-                endTime = end
-            ).copy(id = id)
-            sessionViewModel.updateSession(updatedSession)
-            currentSessionId = null
-        }
     }
 
 

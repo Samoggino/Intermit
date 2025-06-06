@@ -1,6 +1,7 @@
 package com.samoggino.intermit.ui.components
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -32,45 +33,62 @@ import com.samoggino.intermit.data.model.Plan
 @Composable
 fun PlanSelector(
     selectedPlan: Plan,
-    onPlanSelected: (Plan) -> Unit
+    onPlanSelected: (Plan) -> Unit,
+    enabled: Boolean = true
 ) {
     var isExpanded by remember { mutableStateOf(false) }
+
+    val backgroundColor by animateColorAsState(
+        targetValue = if (enabled) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface.copy(
+            alpha = 0.12f
+        )
+    )
+    val contentColor by animateColorAsState(
+        targetValue = if (enabled) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface.copy(
+            alpha = 0.38f
+        )
+    )
 
     Text("Piano selezionato", style = MaterialTheme.typography.titleMedium)
     Spacer(modifier = Modifier.height(16.dp))
 
-    AnimatedContent(targetState = isExpanded, label = "planExpansion") { expanded ->
+    AnimatedContent(targetState = isExpanded && enabled, label = "planExpansion") { expanded ->
         if (expanded) {
             LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 items(Plan.entries.toList()) { plan ->
                     FilterChip(
                         selected = plan == selectedPlan,
                         onClick = {
-                            onPlanSelected(plan)
-                            isExpanded = false
+                            if (enabled) {
+                                onPlanSelected(plan)
+                                isExpanded = false
+                            }
                         },
-                        label = { Text(text = plan.displayName) }
+                        label = { Text(text = plan.displayName) },
+                        enabled = enabled
                     )
                 }
             }
-
         } else {
             Box(
                 modifier = Modifier
                     .clip(RoundedCornerShape(16.dp))
-                    .background(MaterialTheme.colorScheme.primary)
-                    .clickable { isExpanded = true }
+                    .background(backgroundColor)
+                    .then(
+                        if (enabled) Modifier.clickable { isExpanded = true }
+                        else Modifier
+                    )
                     .padding(horizontal = 16.dp, vertical = 8.dp),
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         text = selectedPlan.displayName,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                        color = contentColor
                     )
                     Icon(
                         imageVector = Icons.Default.ArrowDropDown,
                         contentDescription = "Espandi",
-                        tint = MaterialTheme.colorScheme.onPrimaryContainer
+                        tint = contentColor
                     )
                 }
             }

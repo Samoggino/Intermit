@@ -1,7 +1,6 @@
 package com.samoggino.intermit.ui.components
 
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
@@ -17,52 +16,97 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.samoggino.intermit.data.model.TimerState
+import com.samoggino.intermit.ui.theme.LightGreen
 import com.samoggino.intermit.ui.theme.LightRed
+import com.samoggino.intermit.ui.theme.LightYellow
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun TimerControls(
     isRunning: Boolean,
+    isPaused: Boolean,
     onPause: () -> Unit,
     onStop: () -> Unit,
-    onStart: () -> Unit
+    onStart: () -> Unit,
+    onResume: () -> Unit
 ) {
+    val timerState = when {
+        isRunning -> TimerState.RUNNING
+        isPaused -> TimerState.PAUSED
+        else -> TimerState.STOPPED
+    }
+
     AnimatedContent(
-        targetState = isRunning,
+        targetState = timerState,
         transitionSpec = {
-            if (targetState) {
-                // Transizione da "Avvia" a "Pausa" e "Stop"
-                (slideInHorizontally { width -> width } + fadeIn()).togetherWith(
-                    slideOutHorizontally { width -> -width } + fadeOut())
-            } else {
-                // Transizione da "Pausa" e "Stop" a "Avvia"
-                (slideInHorizontally { width -> -width } + fadeIn()).togetherWith(
-                    slideOutHorizontally { width -> width } + fadeOut())
-            }
+            slideInHorizontally { width -> width } + fadeIn() togetherWith
+                    slideOutHorizontally { width -> -width } + fadeOut()
         },
         label = "TimerControlsTransition"
-    ) { running ->
-        if (running) {
-            Row {
-                Button(onClick = onPause) {
-                    Text("Pausa")
+    ) { state ->
+        when (state) {
+            TimerState.RUNNING -> {
+                Row {
+                    Button(
+                        onClick = onPause,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = LightYellow,
+                            contentColor = Color.Black
+                        )
+                    ) {
+                        Text("Pausa")
+                    }
+
+                    Spacer(modifier = Modifier.width(8.dp))
+
+                    Button(
+                        onClick = onStop,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = LightRed,
+                            contentColor = Color.Black
+                        )
+                    ) {
+                        Text("Stop")
+                    }
                 }
+            }
 
-                Spacer(modifier = Modifier.width(8.dp))
+            TimerState.PAUSED -> {
+                Row {
+                    Button(
+                        onClick = onResume,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = LightGreen,
+                            contentColor = Color.Black
+                        )
+                    ) {
+                        Text("Riprendi")
+                    }
 
+                    Spacer(modifier = Modifier.width(8.dp))
+
+                    Button(
+                        onClick = onStop,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = LightRed,
+                            contentColor = Color.Black
+                        )
+                    ) {
+                        Text("Stop")
+                    }
+                }
+            }
+
+            TimerState.STOPPED -> {
                 Button(
-                    onClick = onStop,
+                    onClick = onStart,
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = LightRed, // Rosso tenue
+                        containerColor = LightGreen,
                         contentColor = Color.Black
                     )
                 ) {
-                    Text("Stop")
+                    Text("Avvia")
                 }
-            }
-        } else {
-            Button(onClick = onStart) {
-                Text("Avvia")
             }
         }
     }

@@ -31,7 +31,8 @@ fun HomeScreen(viewModel: HomeViewModel) {
             ) {
                 PlanSelector(
                     selectedPlan = ui.selectedPlan,
-                    onPlanSelected = { viewModel.onPlanSelected(it) }
+                    onPlanSelected = { viewModel.onPlanSelected(it) },
+                    enabled = !ui.isRunning  // disabilita se il timer è in esecuzione
                 )
                 TimerDisplay(
                     timeLeft = ui.timeLeft,
@@ -39,9 +40,11 @@ fun HomeScreen(viewModel: HomeViewModel) {
                 )
                 TimerControls(
                     isRunning = ui.isRunning,
+                    isPaused = ui.isPaused,  // aggiunto campo
                     onStart = { viewModel.onStartClicked() },
                     onPause = { viewModel.onPauseClicked() },
-                    onStop = { viewModel.onStopClicked() }
+                    onStop = { viewModel.onStopClicked() },
+                    onResume = { viewModel.restoreOngoingSession() }
                 )
             }
         }

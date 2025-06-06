@@ -64,7 +64,6 @@ dependencies {
     implementation(libs.androidx.runtime.livedata)
 
     implementation(libs.androidx.navigation.compose)
-    implementation(libs.firebase.perf.ktx)
 
     ksp(libs.androidx.room.compiler)
 

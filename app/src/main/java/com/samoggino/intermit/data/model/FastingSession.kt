@@ -3,24 +3,42 @@ package com.samoggino.intermit.data.model
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
+enum class SessionStatus {
+    ACTIVE,
+    PAUSED,
+    COMPLETED,
+    STOPPED
+}
+
 @Entity(tableName = "fasting_sessions")
 data class FastingSession(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val startTime: Long,
-    val endTime: Long = 0L, // 0L indica che il digiuno è ancora in corso
-    val note: String?
+    val planHours: Int,
+    val endTime: Long = 0L,
+    val note: String?,
+    val status: SessionStatus = SessionStatus.ACTIVE // default
 )
 
-// fai il metodo per calcolare la durata del digiuno
-fun FastingSession.getDurationMillis(): Long {
-    return if (endTime > 0) {
-        endTime - startTime
-    } else {
-        System.currentTimeMillis() - startTime // Se il digiuno è ancora in corso, calcola la durata fino ad ora
+
+fun FastingSession.getPlan(): Plan {
+    return Plan.entries.firstOrNull { it.fastingHours == planHours } ?: Plan.SIXTEEN
+}
+
+fun FastingSession.getTimeLeftMillis(): Long {
+    val now = System.currentTimeMillis()
+    val planDuration = getPlan().durationMillis
+    return when {
+        endTime > 0L -> 0L
+        startTime + planDuration > now -> startTime + planDuration - now
+        else -> 0L
     }
 }
 
-// fai il metodo per calcolare la durata del digiuno in secondi
-fun FastingSession.getDurationSeconds(): Long {
-    return getDurationMillis() / 1000
+fun FastingSession.getDurationMillis(): Long {
+    return if (endTime > 0L) {
+        endTime - startTime
+    } else {
+        System.currentTimeMillis() - startTime
+    }
 }

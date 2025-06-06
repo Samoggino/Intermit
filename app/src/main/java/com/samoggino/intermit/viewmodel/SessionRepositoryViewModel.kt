@@ -1,10 +1,12 @@
 package com.samoggino.intermit.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.samoggino.intermit.data.model.FastingSession
+import com.samoggino.intermit.data.model.SessionStatus
 import com.samoggino.intermit.data.repository.FastingRepository
 import kotlinx.coroutines.launch
 
@@ -28,4 +30,25 @@ class SessionRepositoryViewModel(private val repository: FastingRepository) : Vi
     fun deleteAllSessions() = viewModelScope.launch {
         repository.deleteAll()
     }
+
+    fun restoreLastActiveSession(onResult: (FastingSession?) -> Unit) = viewModelScope.launch {
+        val session = repository.getCurrentNonTerminatedSession()
+        onResult(session)
+    }
+
+    fun markSessionAs(session: FastingSession, newStatus: SessionStatus) = viewModelScope.launch {
+        val updated = session.copy(status = newStatus)
+        updateSession(updated)
+        Log.d("SessionRepositoryViewModel", "Session ${session.id} marked as $newStatus")
+    }
+
+    fun markSessionAs(sessionId: Long?, newStatus: SessionStatus) = viewModelScope.launch {
+        if (sessionId != null) {
+            val session = repository.getSessionById(sessionId)
+            if (session != null) {
+                markSessionAs(session, newStatus)
+            }
+        }
+    }
+
 }
