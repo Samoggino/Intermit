@@ -14,10 +14,12 @@ import com.samoggino.intermit.data.database.AppDatabase
 import com.samoggino.intermit.data.model.Plan
 import com.samoggino.intermit.data.repository.FastingRepository
 import com.samoggino.intermit.ui.screens.HistoryScreen
-import com.samoggino.intermit.ui.screens.HomeScreen
 import com.samoggino.intermit.ui.screens.LiveUpdateSample
 import com.samoggino.intermit.ui.screens.Screen
 import com.samoggino.intermit.ui.screens.SettingsScreen
+import com.samoggino.intermit.ui.screens.home.HomeScreen
+import com.samoggino.intermit.viewmodel.HomeViewModel
+import com.samoggino.intermit.viewmodel.HomeViewModelFactory
 import com.samoggino.intermit.viewmodel.SessionRepositoryViewModel
 import com.samoggino.intermit.viewmodel.SessionRepositoryViewModelFactory
 import com.samoggino.intermit.viewmodel.TimerViewModel
@@ -35,25 +37,44 @@ fun MyNavigator(
     ) {
         composable(Screen.Home.route) { backStackEntry ->
 
+            val context = LocalContext.current
             val parentEntry = remember(backStackEntry) {
                 navController.getBackStackEntry(Screen.Home.route)
             }
 
+            // DAO e Repository creati una sola volta con remember
+            val dao = remember { AppDatabase.getDatabase(context).fastingDao() }
+            val repository = remember { FastingRepository(dao) }
+
+            // ViewModel per il timer
             val timerViewModel: TimerViewModel = viewModel(
                 viewModelStoreOwner = parentEntry,
                 factory = TimerViewModelFactory(Plan.TWENTY_FOUR)
             )
 
+            // ViewModel per il repository
             val sessionRepositoryViewModel = viewModel(
                 modelClass = SessionRepositoryViewModel::class.java,
-                factory = SessionRepositoryViewModelFactory(
-                    FastingRepository(AppDatabase.getDatabase(LocalContext.current).fastingDao())
-                ),
+                factory = SessionRepositoryViewModelFactory(repository),
                 viewModelStoreOwner = parentEntry
             )
 
-            HomeScreen(timerViewModel, sessionRepositoryViewModel)
+            // Factory ricordata per evitare ricreazioni
+            val homeViewModelFactory = remember(timerViewModel, sessionRepositoryViewModel) {
+                HomeViewModelFactory(timerViewModel, sessionRepositoryViewModel)
+            }
+
+            // ViewModel coordinatore
+            val homeViewModel = viewModel(
+                modelClass = HomeViewModel::class.java,
+                factory = homeViewModelFactory,
+                viewModelStoreOwner = parentEntry
+            )
+
+            // Passaggio finale alla screen
+            HomeScreen(homeViewModel)
         }
+
 
         composable(Screen.History.route) { backStackEntry ->
             val context = LocalContext.current
@@ -76,4 +97,3 @@ fun MyNavigator(
         }
     }
 }
-

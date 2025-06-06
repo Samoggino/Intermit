@@ -6,7 +6,6 @@ import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.samoggino.intermit.data.model.Plan
 import kotlinx.coroutines.delay
@@ -66,15 +65,13 @@ class TimerViewModel(initialPlan: Plan) : ViewModel() {
         timeLeft = selectedPlan.durationMillis
         isRunning = false
     }
-}
 
-class TimerViewModelFactory(private val plan: Plan) : ViewModelProvider.Factory {
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(TimerViewModel::class.java)) {
-            @Suppress("UNCHECKED_CAST")
-            return TimerViewModel(plan) as T
-        }
-        throw IllegalArgumentException("Unknown ViewModel class")
+    fun updateTimeLeft(millis: Long) {
+        timeLeft = millis
+        isRunning = false
+    }
+
+    fun startWithoutReset() {
+        isRunning = true
     }
 }
-
