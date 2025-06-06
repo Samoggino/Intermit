@@ -19,14 +19,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.samoggino.intermit.R
 import com.samoggino.intermit.data.model.FastingSession
 import com.samoggino.intermit.data.model.SessionStatus
 import com.samoggino.intermit.data.model.getDurationMillis
 import com.samoggino.intermit.data.model.getPlan
 import com.samoggino.intermit.viewmodel.SessionRepositoryViewModel
 import java.sql.Date
-
 @Composable
 fun HistoryScreen(viewModel: SessionRepositoryViewModel) {
     val sessions by viewModel.allSessions.observeAsState(emptyList())
@@ -38,7 +39,7 @@ fun HistoryScreen(viewModel: SessionRepositoryViewModel) {
                 .padding(16.dp),
             onClick = { viewModel.deleteAllSessions() }
         ) {
-            Text(text = "Elimina tutte le sessioni")
+            Text(text = stringResource(R.string.delete_all_sessions))
         }
 
         LazyColumn(
@@ -66,29 +67,29 @@ fun SessionItem(session: FastingSession) {
         SessionStatus.STOPPED -> MaterialTheme.colorScheme.error.copy(alpha = 0.15f)
     }
 
-    val statusText = when (session.status) {
-        SessionStatus.ACTIVE -> "In corso"
-        SessionStatus.PAUSED -> "In pausa"
-        SessionStatus.COMPLETED -> "Completato"
-        SessionStatus.STOPPED -> "Interrotto"
+    val statusTextRes = when (session.status) {
+        SessionStatus.ACTIVE -> R.string.status_active
+        SessionStatus.PAUSED -> R.string.status_paused
+        SessionStatus.COMPLETED -> R.string.status_completed
+        SessionStatus.STOPPED -> R.string.status_stopped
     }
+
+    val statusText = stringResource(id = statusTextRes)
 
     Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = statusColor
-        ),
+        colors = CardDefaults.cardColors(containerColor = statusColor),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
-                text = "Inizio: ${Date(session.startTime)}",
+                text = stringResource(R.string.start, Date(session.startTime)),
                 style = MaterialTheme.typography.bodyMedium
             )
             Spacer(modifier = Modifier.height(4.dp))
 
             Text(
-                text = "Stato: $statusText",
+                text = stringResource(R.string.status, statusText),
                 style = MaterialTheme.typography.bodyMedium.copy(
                     color = when (session.status) {
                         SessionStatus.ACTIVE -> MaterialTheme.colorScheme.primary
@@ -102,13 +103,13 @@ fun SessionItem(session: FastingSession) {
 
             if (session.status == SessionStatus.COMPLETED || session.status == SessionStatus.STOPPED) {
                 Text(
-                    text = "Durata: ${durationHours}h ${durationMinutes}m",
+                    text = stringResource(R.string.duration, durationHours, durationMinutes),
                     style = MaterialTheme.typography.bodyMedium
                 )
-            } else if (session.status == SessionStatus.ACTIVE || session.status == SessionStatus.PAUSED) {
+            } else {
                 val planName = session.getPlan().displayName
                 Text(
-                    text = "Piano: $planName",
+                    text = stringResource(R.string.plan, planName),
                     style = MaterialTheme.typography.bodyMedium
                 )
             }
@@ -116,7 +117,7 @@ fun SessionItem(session: FastingSession) {
             session.note?.takeIf { it.isNotBlank() }?.let {
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = "Note: $it",
+                    text = stringResource(R.string.notes, it),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
