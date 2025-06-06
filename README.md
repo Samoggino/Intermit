@@ -16,17 +16,18 @@ Intermit is an Android app for **intermittent fasting**. It helps you track your
 
 ## **Installation** ⚡
 
-1. **Clone the repository**:
+1. **Clone the repository:**
+    ```bash
+    git clone https://github.com/Samoggino/Intermit.git
+    cd intermit
+    ```
 
-   ```bash
-   git clone https://github.com/Samoggino/Intermit.git
-   cd Intermit
-   ```
+2. **Build and run the app from source:**  
+   Open the project in Android Studio, sync Gradle (`File > Sync Project with Gradle Files`), and run the app on your device or emulator.
 
-2. **Open in Android Studio**:
+3. **Download the APK (optional):**  
+   Alternatively, download the latest signed APK from the [Releases](https://github.com/Samoggino/Intermit/releases) section on GitHub and install it directly on your device.
 
-   * Sync the project with Gradle: `File > Sync Project with Gradle Files`.
-   * Run the app on a physical device or emulator.
 
 ## **Contact** 📬
 
