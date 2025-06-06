@@ -1,5 +1,5 @@
 # Built application files
-*.apk
+# *.apk
 *.ap_ 
 *.aab
 
@@ -20,10 +20,6 @@ local.properties
 .vscode/
 *.iws
 *.ipr
-
-# Gradle Wrapper
-gradle-wrapper.jar
-gradle-wrapper.properties
 
 # Miscellaneous
 .DS_Store
