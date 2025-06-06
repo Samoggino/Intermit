@@ -20,6 +20,7 @@ package com.samoggino.intermit.ui.screens
 import android.annotation.SuppressLint
 import android.app.NotificationManager
 import android.content.Context
+import android.os.Build
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -96,15 +97,17 @@ fun NotificationPermission() {
     val notificationPermissionState = rememberPermissionState(
         android.Manifest.permission.POST_NOTIFICATIONS,
     )
-    if (!notificationPermissionState.status.isGranted) {
-        NotificationPermissionCard(
-            shouldShowRationale = notificationPermissionState.status.shouldShowRationale,
-            onGrantClick = {
-                notificationPermissionState.launchPermissionRequest()
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-        )
+    // Mostra la richiesta solo se API >= 33
+    if (Build.VERSION.SDK_INT >= 33) {
+        if (!notificationPermissionState.status.isGranted) {
+            NotificationPermissionCard(
+                shouldShowRationale = notificationPermissionState.status.shouldShowRationale,
+                onGrantClick = {
+                    notificationPermissionState.launchPermissionRequest()
+                },
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
     }
 }
 
