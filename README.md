@@ -1,32 +1,35 @@
-# **Intermit** 🕒 - App per il Digiuno Intermittente
+# **Intermit** 🕒 - Intermittent Fasting Tracker App
 
-Intermit è un'app Android per il **digiuno intermittente**. Permette di tracciare i periodi di digiuno e alimentazione, visualizzare la cronologia e personalizzare le impostazioni, il tutto con un'interfaccia moderna in **Material Design 3**.
+Intermit is an Android app for **intermittent fasting**. It helps you track your fasting and eating windows, view your session history, and customize your fasting plans — all wrapped in a sleek **Material Design 3** interface.
 
-## **Funzionalità** 🚀
+## **Features** 🚀
 
-- **🕰️ Tracciamento Digiuno**: Monitora i tuoi periodi di digiuno e alimentazione.
-- **📊 Cronologia**: Visualizza la cronologia delle tue sessioni.
-- **⚙️ Impostazioni Personalizzabili**: Configura il tipo di digiuno che segui.
+* **🕰️ Fasting Tracker**: Monitor your fasting and eating periods easily.
+* **📊 History**: Browse through your past fasting sessions.
+* **⚙️ Customizable Plans**: Choose and adjust fasting plans to fit your lifestyle.
 
-## **Tecnologie** 🛠️
+## **Technologies** 🛠️
 
-- **Kotlin** + **Jetpack Compose**
-- **SQLite** per il salvataggio locale
-- **Material 3** per il design
+* **Kotlin** with **Jetpack Compose** for UI
+* **Room** as a persistence library for local database management
+* **Material Design 3** for modern UI components and theming
 
-## **Installazione** ⚡
+## **Installation** ⚡
 
-1. **Clona il repository**:
-    ```bash
-    git clone https://github.com/Samoggino/Intermit.git
-    cd intermit
-    ```
+1. **Clone the repository**:
 
-2. **Apri in Android Studio**:
-    - Sincronizza con Gradle: `File > Sync Project with Gradle Files`.
-    - **Run** il progetto su dispositivo o emulatore.
+   ```bash
+   git clone https://github.com/Samoggino/Intermit.git
+   cd Intermit
+   ```
 
-## **Contatti** 📬
+2. **Open in Android Studio**:
 
-- **GitHub**: [@Samoggino](https://github.com/Samoggino)
-- **Email**: [simosamoggia@gmail.com](mailto:simosamoggia@gmail.com)
+   * Sync the project with Gradle: `File > Sync Project with Gradle Files`.
+   * Run the app on a physical device or emulator.
+
+## **Contact** 📬
+
+* **GitHub**: [@Samoggino](https://github.com/Samoggino)
+* **Email**: [simosamoggia@gmail.com](mailto:simosamoggia@gmail.com)
+
