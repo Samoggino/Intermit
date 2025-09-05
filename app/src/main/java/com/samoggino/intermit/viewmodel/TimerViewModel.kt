@@ -131,4 +131,16 @@ class TimerViewModel(
             startTicker()
         }
     }
+
+    fun resume() {
+        val current = _uiState.value
+        if (current.timerState == TimerState.PAUSED) {
+            val now = System.currentTimeMillis()
+            startTime = now
+            endTime = now + current.timeLeft
+            _uiState.update { it.copy(timerState = TimerState.RUNNING) }
+            startTicker()
+        }
+    }
+
 }

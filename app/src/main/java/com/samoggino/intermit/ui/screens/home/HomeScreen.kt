@@ -45,7 +45,7 @@ fun HomeScreen(viewModel: HomeViewModel) {
                     onStart = { viewModel.onStartClicked() },
                     onPause = { viewModel.onPauseClicked() },
                     onStop = { viewModel.onStopClicked() },
-                    onResume = { viewModel.restoreOngoingSession() }
+                    onResume = { viewModel.onResumeClicked() }
                 )
             }
         }

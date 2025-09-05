@@ -105,4 +105,18 @@ class HomeViewModel(
     fun onPlanSelected(plan: Plan) {
         timerViewModel.selectPlan(plan)
     }
+
+    fun onResumeClicked() {
+        timerViewModel.resume()
+        currentSessionId?.let { id ->
+            viewModelScope.launch {
+                val session = sessionViewModel.getSessionById(id)
+                if (session != null) {
+                    // marca sessione come ACTIVE
+                    sessionViewModel.markSessionAs(session, SessionStatus.ACTIVE)
+                }
+            }
+        }
+    }
+
 }
