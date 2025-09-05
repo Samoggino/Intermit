@@ -6,7 +6,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.samoggino.intermit.data.model.FastingSession
 
-@Database(entities = [FastingSession::class], version = 2)
+@Database(entities = [FastingSession::class], version = 4)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun fastingDao(): FastingDao
 

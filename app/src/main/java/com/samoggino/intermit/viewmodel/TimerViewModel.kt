@@ -2,9 +2,13 @@ package com.samoggino.intermit.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.samoggino.intermit.data.model.FastingSession
 import com.samoggino.intermit.data.model.Plan
+import com.samoggino.intermit.data.model.SessionStatus
 import com.samoggino.intermit.data.model.TimerState
 import com.samoggino.intermit.data.model.TimerUiState
+import com.samoggino.intermit.data.model.getPlan
+import com.samoggino.intermit.data.model.getTimeLeftMillis
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -31,6 +35,7 @@ class TimerViewModel(
     private var startTime: Long = 0L
     private var endTime: Long = 0L
 
+    /** Avvia un nuovo timer */
     fun start() {
         val plan = _uiState.value.selectedPlan
         val now = System.currentTimeMillis()
@@ -41,11 +46,12 @@ class TimerViewModel(
 
         startTime = now
         endTime = now + _uiState.value.timeLeft
-        _uiState.update { it.copy(timerState = TimerState.RUNNING) }
 
+        _uiState.update { it.copy(timerState = TimerState.RUNNING) }
         startTicker()
     }
 
+    /** Tick ogni secondo – calcolo sempre rispetto a endTime */
     private fun startTicker() {
         timerJob?.cancel()
         timerJob = viewModelScope.launch {
@@ -57,7 +63,10 @@ class TimerViewModel(
                     _uiState.update { it.copy(timerState = TimerState.STOPPED) }
                     break
                 }
-                delay(1000L)
+
+                // corregge drift, si allinea sempre al secondo successivo
+                val nextTick = 1000L - (System.currentTimeMillis() % 1000L)
+                delay(nextTick)
             }
         }
     }
@@ -91,14 +100,35 @@ class TimerViewModel(
         timerJob?.cancel()
     }
 
-    fun restoreFromSession(plan: Plan, remaining: Long) {
+    /**
+     * Ripristina da una sessione salvata nel DB.
+     * Se la sessione è ACTIVE → riparte il timer
+     * Se è PAUSED → rimane in pausa
+     * Se è STOPPED/COMPLETED → tempo azzerato
+     */
+    fun restoreFromSession(session: FastingSession) {
+        val plan = session.getPlan()
+        val remaining = session.getTimeLeftMillis()
+
+        val state = when (session.status) {
+            SessionStatus.ACTIVE -> TimerState.RUNNING
+            SessionStatus.PAUSED -> TimerState.PAUSED
+            else -> TimerState.STOPPED
+        }
+
         _uiState.update {
             TimerUiState(
                 selectedPlan = plan,
                 timeLeft = remaining,
-                timerState = TimerState.PAUSED
+                timerState = state
             )
         }
-        timerJob?.cancel()
+
+        if (state == TimerState.RUNNING) {
+            // ricostruisco endTime basato su start + durata
+            startTime = session.startTime
+            endTime = session.startTime + plan.durationMillis
+            startTicker()
+        }
     }
 }

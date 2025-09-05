@@ -15,9 +15,10 @@ data class FastingSession(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val startTime: Long,
     val planHours: Int,
-    val endTime: Long = 0L,
-    val note: String?,
-    val status: SessionStatus = SessionStatus.ACTIVE // default
+    val endTime: Long? = null,
+    val note: String? = null,
+    val status: SessionStatus = SessionStatus.ACTIVE,
+    val pausedTimeLeft: Long? = null // residuo se messo in pausa
 )
 
 
@@ -26,19 +27,27 @@ fun FastingSession.getPlan(): Plan {
 }
 
 fun FastingSession.getTimeLeftMillis(): Long {
-    val now = System.currentTimeMillis()
-    val planDuration = getPlan().durationMillis
     return when {
-        endTime > 0L -> 0L
-        startTime + planDuration > now -> startTime + planDuration - now
-        else -> 0L
+        pausedTimeLeft != null -> pausedTimeLeft
+        endTime != null -> 0L
+        else -> (startTime + getPlan().durationMillis - System.currentTimeMillis()).coerceAtLeast(0L)
     }
 }
 
+
 fun FastingSession.getDurationMillis(): Long {
-    return if (endTime > 0L) {
+    return if (endTime != null) {
         endTime - startTime
     } else {
         System.currentTimeMillis() - startTime
+    }
+}
+
+fun FastingSession.markAs(newStatus: SessionStatus): FastingSession {
+    return when (newStatus) {
+        SessionStatus.COMPLETED, SessionStatus.STOPPED ->
+            copy(status = newStatus, endTime = System.currentTimeMillis())
+
+        else -> copy(status = newStatus)
     }
 }

@@ -2,11 +2,10 @@ package com.samoggino.intermit.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.samoggino.intermit.data.factory.SessionFactory
+import com.samoggino.intermit.data.model.FastingSession
 import com.samoggino.intermit.data.model.Plan
 import com.samoggino.intermit.data.model.SessionStatus
-import com.samoggino.intermit.data.model.getPlan
-import com.samoggino.intermit.data.model.getTimeLeftMillis
+import com.samoggino.intermit.data.model.TimerState
 import com.samoggino.intermit.ui.screens.home.HomeUiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -28,61 +27,81 @@ class HomeViewModel(
         observeTimerState()
     }
 
+    /** Osserva sempre lo stato del Timer e aggiorna la HomeUiState */
     private fun observeTimerState() {
         viewModelScope.launch {
             timerViewModel.uiState.collect { timerUi ->
                 _uiState.value = HomeUiState.Ready(
                     selectedPlan = timerUi.selectedPlan,
                     timeLeft = timerUi.timeLeft,
-                    isRunning = timerUi.isRunning,
-                    isPaused = timerUi.isPaused,
-                    progress = timerUi.progress
+                    isRunning = timerUi.timerState == TimerState.RUNNING,
+                    isPaused = timerUi.timerState == TimerState.PAUSED,
+                    progress = 1f - (timerUi.timeLeft.toFloat() / timerUi.selectedPlan.durationMillis.toFloat())
                 )
             }
         }
     }
 
+    /** Ripristina eventuale sessione non terminata dal DB */
     fun restoreOngoingSession() {
         sessionViewModel.restoreLastActiveSession { session ->
             if (session != null) {
-                currentSessionId = session.id // <-- tieni traccia della sessione ripristinata
-                val plan = session.getPlan()
-                val timeLeft = session.getTimeLeftMillis()
-
-                // Ripristina sempre in pausa (anche se prima era ACTIVE)
-                timerViewModel.restoreFromSession(plan, timeLeft)
+                currentSessionId = session.id
+                timerViewModel.restoreFromSession(session)
             }
         }
     }
 
+    /** Avvia nuova sessione */
     fun onStartClicked() {
+        if (currentSessionId != null) return // già in corso
+
         val start = System.currentTimeMillis()
         val currentPlan = timerViewModel.uiState.value.selectedPlan
 
-        val session = SessionFactory.createSession(
+        val session = FastingSession(
             startTime = start,
-            plan = currentPlan
+            planHours = currentPlan.fastingHours,
+            status = SessionStatus.ACTIVE,
+            note = null
         )
+
         // Avvia prima il timer
         timerViewModel.start()
-        // Salva la sessione e memorizza l'id quando arriva
+
+        // Poi salva la sessione e memorizza l'id
         sessionViewModel.insertSession(session) { id ->
             currentSessionId = id
         }
     }
 
-
+    /** Mette in pausa sessione + timer */
     fun onPauseClicked() {
-        // Ferma subito il ticker per evitare il “secondo perso”
         timerViewModel.pause()
-        currentSessionId?.let { sessionViewModel.markSessionAs(it, SessionStatus.PAUSED) }
+        val remaining = timerViewModel.uiState.value.timeLeft
+
+        currentSessionId?.let { id ->
+            viewModelScope.launch {
+                val session = sessionViewModel.getSessionById(id)
+                if (session != null) {
+                    sessionViewModel.pauseSession(session as FastingSession, remaining)
+                }
+            }
+        }
     }
 
+
+
+    /** Ferma sessione + timer */
     fun onStopClicked() {
         timerViewModel.stop()
-        currentSessionId?.let { sessionViewModel.markSessionAs(it, SessionStatus.STOPPED) }
+        currentSessionId?.let { id ->
+            sessionViewModel.markSessionAs(id, SessionStatus.STOPPED)
+        }
+        currentSessionId = null
     }
 
+    /** Seleziona un nuovo piano */
     fun onPlanSelected(plan: Plan) {
         timerViewModel.selectPlan(plan)
     }

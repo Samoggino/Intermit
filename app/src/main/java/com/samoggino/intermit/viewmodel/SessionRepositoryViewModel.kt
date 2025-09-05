@@ -53,4 +53,16 @@ class SessionRepositoryViewModel(
         }
     }
 
+    fun pauseSession(session: FastingSession, remainingTime: Long) = viewModelScope.launch {
+        val updated = session.copy(
+            status = SessionStatus.PAUSED,
+            pausedTimeLeft = remainingTime
+        )
+        updateSession(updated)
+    }
+
+    suspend fun getSessionById(id: Long): FastingSession? {
+        return repository.getSessionById(id)
+    }
+
 }
