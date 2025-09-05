@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.samoggino.intermit.ui.components.PlanSelector
 import com.samoggino.intermit.ui.components.TimerControls
 import com.samoggino.intermit.ui.components.TimerDisplay
@@ -16,7 +17,7 @@ import com.samoggino.intermit.viewmodel.HomeViewModel
 
 @Composable
 fun HomeScreen(viewModel: HomeViewModel) {
-    val state by viewModel.uiState
+    val state by viewModel.uiState.collectAsStateWithLifecycle()
 
     when (state) {
         is HomeUiState.Loading -> CircularProgressIndicator()

@@ -10,7 +10,9 @@ import com.samoggino.intermit.data.model.SessionStatus
 import com.samoggino.intermit.data.repository.FastingRepository
 import kotlinx.coroutines.launch
 
-class SessionRepositoryViewModel(private val repository: FastingRepository) : ViewModel() {
+class SessionRepositoryViewModel(
+    private val repository: FastingRepository
+) : ViewModel() {
 
     val allSessions: LiveData<List<FastingSession>> = repository.allSessions.asLiveData()
 

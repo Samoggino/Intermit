@@ -1,86 +1,104 @@
 package com.samoggino.intermit.viewmodel
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableLongStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.samoggino.intermit.data.model.Plan
 import com.samoggino.intermit.data.model.TimerState
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import com.samoggino.intermit.data.model.TimerUiState
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
-class TimerViewModel(initialPlan: Plan) : ViewModel() {
+class TimerViewModel(
+    private val initialPlan: Plan
+) : ViewModel() {
 
-    var selectedPlan by mutableStateOf(initialPlan)
-        private set
+    private val _uiState = MutableStateFlow(
+        TimerUiState(
+            selectedPlan = initialPlan,
+            timeLeft = initialPlan.durationMillis,
+            timerState = TimerState.STOPPED
+        )
+    )
+    val uiState: StateFlow<TimerUiState> = _uiState.asStateFlow()
 
-    var timeLeft by mutableLongStateOf(selectedPlan.durationMillis)
-        private set
+    private var timerJob: Job? = null
+    private var startTime: Long = 0L
+    private var endTime: Long = 0L
 
-    var timerState by mutableStateOf(TimerState.STOPPED)
-        private set
+    fun start() {
+        val plan = _uiState.value.selectedPlan
+        val now = System.currentTimeMillis()
 
-    private val scope = CoroutineScope(Dispatchers.Default)
+        if (_uiState.value.timeLeft <= 0L) {
+            _uiState.update { it.copy(timeLeft = plan.durationMillis) }
+        }
 
-    init {
-        startTimerLoop()
+        startTime = now
+        endTime = now + _uiState.value.timeLeft
+        _uiState.update { it.copy(timerState = TimerState.RUNNING) }
+
+        startTicker()
     }
 
-    private fun startTimerLoop() {
-        scope.launch {
-            while (true) {
-                when (timerState) {
-                    TimerState.RUNNING -> {
-                        if (timeLeft > 0) {
-                            delay(1000)
-                            timeLeft = (timeLeft - 1000).coerceAtLeast(0)
-                        } else {
-                            // Timer finito: fermo il timer
-                            timerState = TimerState.STOPPED
-                        }
-                    }
+    private fun startTicker() {
+        timerJob?.cancel()
+        timerJob = viewModelScope.launch {
+            while (isActive && _uiState.value.timerState == TimerState.RUNNING) {
+                val remaining = (endTime - System.currentTimeMillis()).coerceAtLeast(0L)
+                _uiState.update { it.copy(timeLeft = remaining) }
 
-                    else -> {
-                        delay(100)
-                    }
+                if (remaining == 0L) {
+                    _uiState.update { it.copy(timerState = TimerState.STOPPED) }
+                    break
                 }
+                delay(1000L)
             }
         }
     }
 
-    // Start dal valore corrente di timeLeft (senza reset)
-    fun start() {
-        if (timeLeft <= 0) {
-            timeLeft = selectedPlan.durationMillis
-        }
-        timerState = TimerState.RUNNING
-    }
-
     fun pause() {
-        timerState = TimerState.PAUSED
+        if (_uiState.value.timerState == TimerState.RUNNING) {
+            val remaining = (endTime - System.currentTimeMillis()).coerceAtLeast(0L)
+            _uiState.update {
+                it.copy(timeLeft = remaining, timerState = TimerState.PAUSED)
+            }
+            timerJob?.cancel()
+        }
     }
 
     fun stop() {
-        timerState = TimerState.STOPPED
-        timeLeft = selectedPlan.durationMillis
+        val plan = _uiState.value.selectedPlan
+        _uiState.update {
+            it.copy(timeLeft = plan.durationMillis, timerState = TimerState.STOPPED)
+        }
+        timerJob?.cancel()
     }
 
     fun selectPlan(plan: Plan) {
-        selectedPlan = plan
-        timeLeft = plan.durationMillis
-        timerState = TimerState.STOPPED
-    }
-
-    fun restoreFromSession(plan: Plan, timeLeft: Long, isRunning: Boolean) {
-        selectedPlan = plan
-        this.timeLeft = timeLeft
-        timerState = TimerState.RUNNING
-        if (isRunning) {
-            start()
+        _uiState.update {
+            TimerUiState(
+                selectedPlan = plan,
+                timeLeft = plan.durationMillis,
+                timerState = TimerState.STOPPED
+            )
         }
+        timerJob?.cancel()
     }
 
+    fun restoreFromSession(plan: Plan, remaining: Long) {
+        _uiState.update {
+            TimerUiState(
+                selectedPlan = plan,
+                timeLeft = remaining,
+                timerState = TimerState.PAUSED
+            )
+        }
+        timerJob?.cancel()
+    }
 }

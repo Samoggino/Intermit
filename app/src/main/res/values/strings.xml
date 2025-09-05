@@ -8,6 +8,7 @@
     <string name="checkout">Checkout</string>
     <string name="checking_out">Order placed</string>
 
+    <string name="FED_state">Fed</string>
     <string name="FED_description">Your body is using glucose for energy.</string>
 
     <string name="EARLY_FASTING_state">Early Fasting</string>
