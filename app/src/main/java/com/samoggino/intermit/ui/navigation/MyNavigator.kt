@@ -8,12 +8,14 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.samoggino.intermit.core.TimerConfig
 import com.samoggino.intermit.data.model.Plan
 import com.samoggino.intermit.ui.screens.HistoryScreen
 import com.samoggino.intermit.ui.screens.LiveUpdateSample
 import com.samoggino.intermit.ui.screens.Screen
 import com.samoggino.intermit.ui.screens.SettingsScreen
 import com.samoggino.intermit.ui.screens.home.HomeScreen
+import com.samoggino.intermit.viewmodel.HistoryViewModel
 import com.samoggino.intermit.viewmodel.HomeViewModel
 import com.samoggino.intermit.viewmodel.SessionRepositoryViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -31,18 +33,19 @@ fun MyNavigator(
     ) {
 
         composable(Screen.Home.route) {
-            Log.d("navigator", "recreating homeViewModel")
             val homeViewModel: HomeViewModel = koinViewModel {
-                parametersOf(Plan.SIXTEEN) // o qualsiasi Plan dinamico
+                parametersOf(TimerConfig.DEFAULT_PLAN) // o qualsiasi Plan dinamico
             }
 
-            Log.d("navigator", "post creation")
             HomeScreen(homeViewModel)
         }
 
         composable(Screen.History.route) {
             val sessionViewModel: SessionRepositoryViewModel = koinViewModel()
-            HistoryScreen(viewModel = sessionViewModel)
+            val historyViewModel: HistoryViewModel = koinViewModel {
+                parametersOf(sessionViewModel)
+            }
+            HistoryScreen(sessionViewModel = sessionViewModel, historyViewModel = historyViewModel)
         }
 
         composable(Screen.Settings.route) {

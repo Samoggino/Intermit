@@ -3,6 +3,7 @@ package com.samoggino.intermit.di
 import com.samoggino.intermit.data.database.AppDatabase
 import com.samoggino.intermit.data.model.Plan
 import com.samoggino.intermit.data.repository.FastingRepository
+import com.samoggino.intermit.viewmodel.HistoryViewModel
 import com.samoggino.intermit.viewmodel.HomeViewModel
 import com.samoggino.intermit.viewmodel.SessionRepositoryViewModel
 import com.samoggino.intermit.viewmodel.TimerViewModel
@@ -27,6 +28,11 @@ val appModule = module {
             timerViewModel = get { parametersOf(plan) },
             sessionViewModel = get()
         )
+    }
+
+    // HistoryViewModel
+    viewModel { (sessionViewModel: SessionRepositoryViewModel) ->
+        HistoryViewModel(sessionViewModel)
     }
 }
 

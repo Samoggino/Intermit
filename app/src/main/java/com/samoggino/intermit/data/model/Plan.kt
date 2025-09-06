@@ -1,14 +1,17 @@
 package com.samoggino.intermit.data.model
 
 enum class Plan(val fastingHours: Int) {
-    FOURTEEN(14),
-    SIXTEEN(16),
-    EIGHTEEN(18),
-    TWENTY(20),
-    TWENTY_FOUR(24),
-    THIRTY_SIX(36),
-    FORTY_EIGHT(48),
-    SEVENTY_TWO(72);
+    ONE(fastingHours = 1),
+    SIX(fastingHours = 6),
+    TWO(fastingHours = 2),
+    FOURTEEN(fastingHours = 14),
+    SIXTEEN(fastingHours = 16),
+    EIGHTEEN(fastingHours = 18),
+    TWENTY(fastingHours = 20),
+    TWENTY_FOUR(fastingHours = 24),
+    THIRTY_SIX(fastingHours = 36),
+    FORTY_EIGHT(fastingHours = 48),
+    SEVENTY_TWO(fastingHours = 72);
 
     val durationMillis: Long
         get() = fastingHours * 60 * 60 * 1000L

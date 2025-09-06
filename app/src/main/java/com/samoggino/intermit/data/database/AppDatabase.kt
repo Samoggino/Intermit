@@ -4,9 +4,10 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import com.samoggino.intermit.core.DBConfig
 import com.samoggino.intermit.data.model.FastingSession
 
-@Database(entities = [FastingSession::class], version = 4)
+@Database(entities = [FastingSession::class], version = DBConfig.DB_VERSION)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun fastingDao(): FastingDao
 
@@ -19,7 +20,7 @@ abstract class AppDatabase : RoomDatabase() {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     AppDatabase::class.java,
-                    "intermit_database"
+                    DBConfig.DB_NAME
                 )
                     .fallbackToDestructiveMigration(false) // <-- aggiungi questa riga
                     .build()

@@ -1,4 +1,4 @@
-package com.samoggino.intermit.ui.components
+package com.samoggino.intermit.ui.components.timer
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.fadeIn
