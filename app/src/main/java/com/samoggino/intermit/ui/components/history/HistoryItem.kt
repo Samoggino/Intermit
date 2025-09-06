@@ -6,8 +6,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -33,12 +33,12 @@ fun HistoryItem(
     val durationMinutes = (durationMillis / (1000 * 60)) % 60
 
     val backgroundColor = when {
-        isSelected -> MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)
+        isSelected -> MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
         else -> when (session.status) {
-            SessionStatus.ACTIVE -> MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
-            SessionStatus.PAUSED -> MaterialTheme.colorScheme.secondary.copy(alpha = 0.15f)
+            SessionStatus.ACTIVE -> MaterialTheme.colorScheme.primaryContainer
+            SessionStatus.PAUSED -> MaterialTheme.colorScheme.secondaryContainer
             SessionStatus.COMPLETED -> MaterialTheme.colorScheme.surfaceVariant
-            SessionStatus.STOPPED -> MaterialTheme.colorScheme.error.copy(alpha = 0.15f)
+            SessionStatus.STOPPED -> MaterialTheme.colorScheme.errorContainer
         }
     }
 
@@ -50,46 +50,48 @@ fun HistoryItem(
     }
     val statusText = stringResource(id = statusTextRes)
 
-    Card(
+    ElevatedCard(
         modifier = Modifier
             .fillMaxWidth()
             .combinedClickable(
                 onClick = { onClick(session) },
                 onLongClick = { onLongClick(session) }
             ),
-        colors = CardDefaults.cardColors(containerColor = backgroundColor),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        colors = CardDefaults.elevatedCardColors(containerColor = backgroundColor),
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 4.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
                 text = stringResource(R.string.start, Date(session.startTime)),
-                style = MaterialTheme.typography.bodyMedium
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface
             )
             Spacer(modifier = Modifier.height(4.dp))
 
             Text(
                 text = stringResource(R.string.status, statusText),
-                style = MaterialTheme.typography.bodyMedium.copy(
-                    color = when (session.status) {
-                        SessionStatus.ACTIVE -> MaterialTheme.colorScheme.primary
-                        SessionStatus.PAUSED -> MaterialTheme.colorScheme.secondary
-                        SessionStatus.COMPLETED -> MaterialTheme.colorScheme.onSurfaceVariant
-                        SessionStatus.STOPPED -> MaterialTheme.colorScheme.error
-                    }
-                )
+                style = MaterialTheme.typography.bodyMedium,
+                color = when (session.status) {
+                    SessionStatus.ACTIVE -> MaterialTheme.colorScheme.primary
+                    SessionStatus.PAUSED -> MaterialTheme.colorScheme.secondary
+                    SessionStatus.COMPLETED -> MaterialTheme.colorScheme.onSurfaceVariant
+                    SessionStatus.STOPPED -> MaterialTheme.colorScheme.error
+                }
             )
             Spacer(modifier = Modifier.height(4.dp))
 
             if (session.status == SessionStatus.COMPLETED || session.status == SessionStatus.STOPPED) {
                 Text(
                     text = stringResource(R.string.duration, durationHours, durationMinutes),
-                    style = MaterialTheme.typography.bodyMedium
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
             } else {
                 val planName = session.getPlan().displayName
                 Text(
                     text = stringResource(R.string.plan, planName),
-                    style = MaterialTheme.typography.bodyMedium
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
             }
 
@@ -104,5 +106,3 @@ fun HistoryItem(
         }
     }
 }
-
-
