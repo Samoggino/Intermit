@@ -1,6 +1,5 @@
 package com.samoggino.intermit.ui.navigation
 
-import android.util.Log
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
@@ -9,7 +8,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.samoggino.intermit.core.TimerConfig
-import com.samoggino.intermit.data.model.Plan
 import com.samoggino.intermit.ui.screens.HistoryScreen
 import com.samoggino.intermit.ui.screens.LiveUpdateSample
 import com.samoggino.intermit.ui.screens.Screen
