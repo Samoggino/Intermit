@@ -26,7 +26,8 @@ fun HistoryItem(
     session: FastingSession,
     isSelected: Boolean,
     onClick: (FastingSession) -> Unit,
-    onLongClick: (FastingSession) -> Unit
+    onLongClick: (FastingSession) -> Unit,
+    modifier: Modifier = Modifier // <-- aggiunto parametro Modifier
 ) {
     val durationMillis = session.getDurationMillis()
     val durationHours = durationMillis / (1000 * 60 * 60)
@@ -51,8 +52,8 @@ fun HistoryItem(
     val statusText = stringResource(id = statusTextRes)
 
     ElevatedCard(
-        modifier = Modifier
-            .fillMaxWidth()
+        modifier = modifier
+            .fillMaxWidth() // attenzione: puoi concatenare qui altri modifier
             .combinedClickable(
                 onClick = { onClick(session) },
                 onLongClick = { onLongClick(session) }

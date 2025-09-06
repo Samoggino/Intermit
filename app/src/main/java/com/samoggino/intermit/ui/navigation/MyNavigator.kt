@@ -41,7 +41,7 @@ fun MyNavigator(
         composable(Screen.History.route) {
             val sessionViewModel: SessionRepositoryViewModel = koinViewModel()
             val historyViewModel: HistoryViewModel = koinViewModel {
-                parametersOf(sessionViewModel)
+                parametersOf(sessionViewModel )
             }
             HistoryScreen(sessionViewModel = sessionViewModel, historyViewModel = historyViewModel)
         }

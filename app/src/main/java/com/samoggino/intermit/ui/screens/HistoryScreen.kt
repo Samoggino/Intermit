@@ -1,14 +1,24 @@
 package com.samoggino.intermit.ui.screens
 
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
+import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
@@ -17,20 +27,33 @@ import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.lerp
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.samoggino.intermit.R
 import com.samoggino.intermit.ui.components.history.HistoryItem
 import com.samoggino.intermit.viewmodel.HistoryViewModel
 import com.samoggino.intermit.viewmodel.SessionRepositoryViewModel
+import kotlinx.coroutines.GlobalScope.coroutineContext
+import kotlinx.coroutines.launch
+import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.coroutineContext
+import kotlin.math.roundToInt
 
 @Composable
 fun HistoryScreen(
@@ -39,6 +62,7 @@ fun HistoryScreen(
 ) {
     val sessions by sessionViewModel.allSessions.observeAsState(emptyList())
     val selectedSessions by historyViewModel.selectedSessions.collectAsState()
+    val haptic = LocalHapticFeedback.current
 
     Column(modifier = Modifier.fillMaxSize()) {
 
@@ -71,75 +95,85 @@ fun HistoryScreen(
         ) {
             items(sessions, key = { it.id }) { session ->
 
-                val swipeState = rememberSwipeToDismissBoxState(
-                    confirmValueChange = {
-                        when (it) {
-                            SwipeToDismissBoxValue.EndToStart -> {
-                                historyViewModel.deleteSession(session)
-                                true
-                            }
+                val swipeOffset = remember { Animatable(0f) }
+                val triggeredRight = remember { mutableStateOf(false) }
+                val triggeredLeft = remember { mutableStateOf(false) }
+                val threshold = 200f // soglia in px per vibrazione
 
-                            SwipeToDismissBoxValue.StartToEnd -> {
-                                // Qui puoi aggiungere un’azione tipo “Completa”
-                                true
-                            }
+                val swipeScope = rememberCoroutineScope() // crea un CoroutineScope valido
 
-                            SwipeToDismissBoxValue.Settled -> true
-                        }
-                    }
-                )
 
-                SwipeToDismissBox(
-                    state = swipeState,
-                    modifier = Modifier.fillMaxWidth(),
-                    backgroundContent = {
-                        when (swipeState.dismissDirection) {
-                            SwipeToDismissBoxValue.StartToEnd -> {
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxSize()
-                                        .drawBehind {
-                                            drawRect(
-                                                lerp(Color.LightGray, Color.Green, swipeState.progress)
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(IntrinsicSize.Min)
+                        .background(Color.LightGray, RoundedCornerShape(8.dp))
+                        .pointerInput(Unit) {
+                            val scope = this
+                            detectDragGestures(
+                                onDrag = { change, dragAmount ->
+                                    change.consume()
+                                    val newOffset = (swipeOffset.value + dragAmount.x)
+                                        .coerceIn(-size.width.toFloat(), size.width.toFloat())
+
+                                    swipeScope.launch {
+                                        swipeOffset.snapTo(newOffset)
+                                    }
+
+                                    // Vibrazione destra
+                                    if (swipeOffset.value > threshold && !triggeredRight.value) {
+                                        haptic.performHapticFeedback(HapticFeedbackType.GestureEnd)
+                                        triggeredRight.value = true
+                                    } else if (swipeOffset.value < threshold) {
+                                        triggeredRight.value = false
+                                    }
+
+                                    // Vibrazione sinistra
+                                    if (swipeOffset.value < -threshold && !triggeredLeft.value) {
+                                        haptic.performHapticFeedback(HapticFeedbackType.GestureEnd)
+                                        triggeredLeft.value = true
+                                    } else if (swipeOffset.value > -threshold) {
+                                        triggeredLeft.value = false
+                                    }
+                                },
+                                onDragEnd = {
+                                    // Logica di swipe
+                                    swipeScope.launch {
+                                        swipeOffset.animateTo(
+                                            targetValue = 0f,
+                                            animationSpec = spring(
+                                                dampingRatio = Spring.DampingRatioMediumBouncy,
+                                                stiffness = Spring.StiffnessLow
                                             )
-                                        }
-                                        .padding(start = 16.dp),
-                                    contentAlignment = Alignment.CenterStart
-                                ) {
-                                    Text("Completa", color = Color.White)
+                                        )
+                                    }
                                 }
-                            }
-
-                            SwipeToDismissBoxValue.EndToStart -> {
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxSize()
-                                        .drawBehind {
-                                            drawRect(
-                                                lerp(Color.LightGray, Color.Red, swipeState.progress)
-                                            )
-                                        }
-                                        .padding(end = 16.dp),
-                                    contentAlignment = Alignment.CenterEnd
-                                ) {
-                                    Text("Elimina", color = Color.White)
-                                }
-                            }
-
-                            SwipeToDismissBoxValue.Settled -> {}
+                            )
                         }
-                    }
+
                 ) {
+                    // Background colore dinamico
+                    Box(
+                        modifier = Modifier
+                            .matchParentSize()
+                            .background(
+                                when {
+                                    swipeOffset.value > 0f -> Color.Green.copy(alpha = (swipeOffset.value / threshold).coerceIn(0f, 1f))
+                                    swipeOffset.value < 0f -> Color.Red.copy(alpha = (-swipeOffset.value / threshold).coerceIn(0f, 1f))
+                                    else -> Color.Transparent
+                                },
+                                RoundedCornerShape(8.dp)
+                            )
+                    )
+
                     HistoryItem(
                         session = session,
                         isSelected = selectedSessions.contains(session.id),
-                        onClick = {
-                            if (selectedSessions.isNotEmpty()) {
-                                historyViewModel.toggleSelection(session.id)
-                            }
-                        },
-                        onLongClick = { historyViewModel.select(session.id) }
+                        onClick = { if (selectedSessions.isNotEmpty()) historyViewModel.toggleSelection(session.id) },
+                        onLongClick = { historyViewModel.select(session.id) },
+                        modifier = Modifier.offset { IntOffset(swipeOffset.value.roundToInt(), 0) } // <-- qui
                     )
+
                 }
             }
         }
