@@ -25,8 +25,8 @@ import java.sql.Date
 fun HistoryItem(
     session: FastingSession,
     isSelected: Boolean,
-    onClick: (FastingSession) -> Unit,
-    onLongClick: (FastingSession) -> Unit,
+    onClick: () -> Unit,
+    onLongClick: () -> Unit,
     modifier: Modifier = Modifier // <-- aggiunto parametro Modifier
 ) {
     val durationMillis = session.getDurationMillis()
@@ -55,8 +55,8 @@ fun HistoryItem(
         modifier = modifier
             .fillMaxWidth() // attenzione: puoi concatenare qui altri modifier
             .combinedClickable(
-                onClick = { onClick(session) },
-                onLongClick = { onLongClick(session) }
+                onClick = { onClick() },
+                onLongClick = { onLongClick() }
             ),
         colors = CardDefaults.elevatedCardColors(containerColor = backgroundColor),
         elevation = CardDefaults.elevatedCardElevation(defaultElevation = 4.dp)

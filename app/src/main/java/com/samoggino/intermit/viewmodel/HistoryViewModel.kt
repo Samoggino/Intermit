@@ -48,4 +48,20 @@ class HistoryViewModel(
     fun clearSelection() {
         _selectedSessions.value = emptySet()
     }
+
+    fun deleteSelectedOrAll(sessions: List<FastingSession>) {
+        if (selectedSessions.value.isNotEmpty()) deleteSelected(sessions)
+        else sessionViewModel.deleteAllSessions()
+    }
+
+    fun onSwipeRight(session: FastingSession) {
+        // logica custom, ad esempio selezionare/completare
+        select(session.id)
+    }
+
+    fun onSwipeLeft(session: FastingSession) {
+        deleteSession(session)
+    }
+
+
 }
