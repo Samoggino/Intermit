@@ -1,0 +1,39 @@
+<resources>
+
+    <string name="permission_grant">Concedi</string>
+    <string name="permission_message">Concedi il permesso per le notifiche.</string>
+    <string name="permission_rationale">Le notifiche vengono utilizzate per il tracciamento degli ordini.</string>
+    <string name="live_update_summary_text">Premere il pulsante di checkout simulerà il tracciamento di un ordine con notifiche in stile ProgressStyle.</string>
+    <string name="checkout">Acquista</string>
+    <string name="checking_out">Ordine effettuato</string>
+
+    <string name="FED_state">Sazio</string>
+    <string name="FED_description">Il tuo corpo sta usando il glucosio come fonte di energia.</string>
+
+    <string name="EARLY_FASTING_state">Inizio Digiuno</string>
+    <string name="EARLY_FASTING_description">Il tuo corpo sta iniziando a utilizzare le riserve di glicogeno.</string>
+
+    <string name="FAT_BURNING_state">Brucia Grassi</string>
+    <string name="FAT_BURNING_description">Il tuo corpo sta ora bruciando i grassi per produrre energia.</string>
+
+    <string name="KETOSIS_state">Chetosi</string>
+    <string name="KETOSIS_description">Il tuo corpo sta producendo chetoni per ottenere energia.</string>
+
+    <string name="DEEP_KETOSIS_state">Chetosi Profonda</string>
+    <string name="DEEP_KETOSIS_description">Massimizzazione della combustione dei grassi.</string>
+
+    <string name="AUTOPHAGY_state">Autofagia</string>
+    <string name="AUTOPHAGY_description">Le tue cellule vengono ripulite.</string>
+
+    <string name="delete_all_sessions">Elimina tutte le sessioni</string>
+    <string name="start">Inizio: %1$s</string>
+    <string name="status">Stato: %1$s</string>
+    <string name="duration">Durata: %1$dh %2$dm</string>
+    <string name="plan">Piano: %1$s</string>
+    <string name="notes">Note: %1$s</string>
+
+    <string name="status_active">In corso</string>
+    <string name="status_paused">In pausa</string>
+    <string name="status_completed">Completato</string>
+    <string name="status_stopped">Interrotto</string>
+</resources>
