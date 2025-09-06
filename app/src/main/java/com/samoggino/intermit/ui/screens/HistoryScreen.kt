@@ -98,7 +98,6 @@ fun HistoryScreen(
                         .height(IntrinsicSize.Min)
                         .background(Color.LightGray, RoundedCornerShape(8.dp))
                         .pointerInput(Unit) {
-                            val scope = this
                             detectDragGestures(
                                 onDrag = { change, dragAmount ->
                                     change.consume()
